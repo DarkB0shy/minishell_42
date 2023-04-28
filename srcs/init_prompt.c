@@ -26,6 +26,7 @@ static void main_loop(t_shell *shell)
             break ;
         if (ft_strncmp(shell->pipeline, "", 1))
             add_history(shell->pipeline);
+        shell->pipe_words = ft_split(shell->pipeline, ' ');
     }
 }
 
@@ -36,7 +37,7 @@ static void  get_pwd(t_shell *shell)
     shell->prompt = "\n$";
     home = getenv("PWD");
     if (!home)
-        print_error(1, shell);
+        print_error(1);
     shell->prompt = ft_strjoin(home, shell->prompt);
 }
 
@@ -44,5 +45,6 @@ void init_prompt(t_shell *shell)
 {
     get_pwd(shell);
     main_loop(shell);
-    free_strings(shell);
+    free(shell->prompt);
+    free(shell->pipe_words);
 }
