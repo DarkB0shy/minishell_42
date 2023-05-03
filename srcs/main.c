@@ -3,6 +3,7 @@
 int	main(int argc, char **argv, char **envp)
 {
     t_shell shell;
+    // int     i;
 
     (void)argc;
     (void)argv;

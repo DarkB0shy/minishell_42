@@ -1,6 +1,8 @@
 # ifndef MINISHELL_H
 # define MINISHELL_H
 
+# define TILDE "/home/"
+
 # include <readline/readline.h>
 # include <readline/history.h>
 #include <stdlib.h>
