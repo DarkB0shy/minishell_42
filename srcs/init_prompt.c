@@ -1,11 +1,13 @@
 #include "minishell.h"
 
-static void handle_siginit(int sig)
+void	handle_sigint(int sig)
 {
-    (void)sig;
-    rl_replace_line("", 0);
-    rl_on_new_line();
-    rl_redisplay();
+	if (sig == SIGINT)
+	{
+		ioctl(STDIN_FILENO, TIOCSTI, "\n");
+		rl_replace_line("", 0);
+		rl_on_new_line();
+	}
 }
 
 static void	handle_sigquit(int sig)
@@ -19,15 +21,17 @@ static void main_loop(t_shell *shell)
 {
     while (1)
     {
-        signal(SIGINT, handle_siginit);
+        signal(SIGINT, handle_sigint);
         signal(SIGQUIT, handle_sigquit);
         shell->pipeline = readline(shell->prompt);
         if (!shell->pipeline)
             break ;
         if (ft_strncmp(shell->pipeline, "", 1))
+        {
             add_history(shell->pipeline);
-        shell->pipe_words = ft_split(shell->pipeline, ' ');
-        free(shell->pipe_words);
+            if (!check_syntax(shell->pipeline))
+                printf("ok\n");
+        }        
         free(shell->pipeline);
     }
 }

@@ -18,6 +18,8 @@ READLINE	= -L/usr/local/lib -I/usr/local/include -lreadline
 
 RM			= rm -rf
 
+all:	$(NAME)
+
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
