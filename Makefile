@@ -1,39 +1,45 @@
-NAME		= minishell
+NAME        	= minishell
 
-CC			= cc
+CC          	= cc
 
-CFLAGS		= -Wall -Wextra -Werror -g
+CFLAGS      	= -Wall -Wextra -Werror -g
 
-INCLUDE		= includes/
+INCLUDE     	= includes/
 
-SRCS		= $(wildcard $(SRC_DIR)/*.c)
+SRC_DIR     	= srcs
+MLIBFT_DIR  	= mini_libft
+OBJ_DIR     	= objs
 
-SRC_DIR		= srcs
+SRCS        	= $(wildcard $(SRC_DIR)/*.c)
+OBJS        	= $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
-OBJS		= $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+MLIBFT_SRCS 	= $(wildcard $(MLIBFT_DIR)/*.c)
+OBJS_MLIBFT 	= $(MLIBFT_SRCS:$(MLIBFT_DIR)/%.c=$(OBJ_DIR)/%.o)
 
-OBJ_DIR		= objs
+READLINE_MAC    = -L/usr/include -lreadline -L$(HOME)/.brew/opt/readline/lib -I$(HOME)/.brew/opt/readline/include
 
-READLINE	= -L/usr/local/lib -I/usr/local/include -lreadline
-
-RM			= rm -rf
-
-all:	$(NAME)
+RM          	= rm -rf
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
 
-$(NAME): $(OBJS)
-	@$(CC) $(CFLAGS) -I $(INCLUDE) $(OBJS) -o $@ $(READLINE)
+$(OBJ_DIR)/%.o : $(MLIBFT_DIR)/%.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
+
+$(NAME): $(OBJS) $(OBJS_MLIBFT)
+	@$(CC) $(CFLAGS) -I $(INCLUDE) $(OBJS) $(OBJS_MLIBFT) -o $(NAME) $(READLINE_MAC)
 	@echo "[+] $(NAME) compiled"
+
+all: $(NAME)
 
 clean:
 	@$(RM) $(OBJ_DIR)
 	@echo "[+] $(NAME) cleaned"
 
 fclean: clean
-	@$(RM) $(NAME)
+	@$(RM) $(OBJ_DIR)/$(NAME)
 	@echo "[+] $(NAME) fcleaned"
 
 re: fclean all

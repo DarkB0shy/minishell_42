@@ -1,26 +1,34 @@
 #include "minishell.h"
 
+// static int  check_quote(char *str, )
+
 static int  check_quotes(char *str)
 {
     int i;
     int j;
-    int k;
+    // int k;
+    int check;
 
     i = 0;
     j = 0;
-    k = 0;
+    // k = 0;
+    check = 0;
     while (str[i])
     {
         if (str[i] == 34)
+        {
             j++;
-        else if (str[i] == 39)
-            k++;
+            i++;
+            while (str[i] != 34 && str[i + 1])
+                i++;
+            if (str[i] == 34)
+                j++;
+        }
         i++;
     }
-    if (j % 2 == 0 && k % 2 == 0)
-        return (0);
-    else
-        return (1);
+    if (j % 2 != 0)
+        check = 1;
+    return (check);
 }
 
 static int  check_and(char *str)
