@@ -2,12 +2,10 @@
 
 void	handle_sigint(int sig)
 {
-	if (sig == SIGINT)
-	{
-		ioctl(STDIN_FILENO, TIOCSTI, "\n");
-		rl_replace_line("", 0);
-		rl_on_new_line();
-	}
+	(void)sig;
+    ioctl(STDIN_FILENO, TIOCSTI, "\n");
+	rl_replace_line("", 0);
+	rl_on_new_line();
 }
 
 static void	handle_sigquit(int sig)
@@ -19,6 +17,8 @@ static void	handle_sigquit(int sig)
 
 static void main_loop(t_shell *shell)
 {
+    // char *echo_cmd[] = {"echo", NULL};
+
     while (1)
     {
         signal(SIGINT, handle_sigint);
@@ -26,12 +26,24 @@ static void main_loop(t_shell *shell)
         shell->pipeline = readline(shell->prompt);
         if (!shell->pipeline)
             break ;
+        // if (ft_strncmp(shell->pipeline, "echo", 4))
+        // {
+        //     int pid;
+        //     if ((pid = fork()) < 0)
+        //         return ;
+        //     else if (!pid)
+        //         execvp("/bin/echo", echo_cmd);
+        //     close(pid);
+        //     waitpid(pid, NULL, 0);
+        // }
         if (ft_strncmp(shell->pipeline, "", 1))
         {
             add_history(shell->pipeline);
             if (!check_syntax(shell->pipeline))
-                printf("ok\n");
-        }        
+            {
+                // split_readline(shell);
+            }
+        } 
         free(shell->pipeline);
     }
 }
