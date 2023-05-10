@@ -17,7 +17,7 @@ static void	handle_sigquit(int sig)
 
 static void main_loop(t_shell *shell)
 {
-    // char *echo_cmd[] = {"echo", NULL};
+    // char *echo_cmd[] = {"echo", "ciao", NULL};
 
     while (1)
     {
