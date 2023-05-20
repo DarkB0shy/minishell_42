@@ -3,10 +3,10 @@
 static void main_loop(t_shell *shell, char **envp)
 {
     (void)envp;
-    signal(SIGINT, ft_sig_handel);
-    signal(SIGQUIT, ft_sig_handel);
     while (1)
     {
+        signal(SIGINT, ft_sig_handel);
+        signal(SIGQUIT, ft_sig_handel);
         shell->pipeline = readline(shell->prompt);
         if (!shell->pipeline)
             break ;
@@ -20,15 +20,16 @@ static void main_loop(t_shell *shell, char **envp)
                     write_std_error("command not found\n");
                 else
                 {
+                    printf("executed\n");
+                    executing(shell, envp);
                     free(shell->execve_arg);
                     free(shell->first_cmd_path);
                     free_nodes(shell->token);
-                    // executing(shell, envp);
                 }
             }
-            free(shell->pipeline);
             free(shell->line_to_split);
             free(shell->splitted_pipe);
+            // free(shell->pipeline);
         }
     }
 }

@@ -26,23 +26,25 @@ int		count_in_out(char *str)
 {
 	int	i;
 	int	k;
+	int	j;
 
 	i = 0;
 	k = 0;
 	while (str[i])
 	{
 		if (str[i] == 60 || str[i] == 62)
-		{
-			if (str[i - 1] != 60 && str[i - 1] != 62)
-				k++;
-			else if (str[i + 1] != 60 && str[i + 1] != 62)
-				k++;
-		}
-		if (str[i] == 124)
 			k++;
 		i++;
 	}
-	return (k * 2);
+	i = 0;
+	j = 0;
+	while (str[i])
+	{
+		if (str[i] == 124)
+			j++;
+		i++;
+	}
+	return (k + j);
 }
 
 // Aggiunge gli spazi per poter usare ft_split con ' '
@@ -57,7 +59,7 @@ static char	*parsing(t_shell *shell)
 	i = 0;
 	j = 0;
 	space = 0;
-	// space = count_in_out(shell->pipeline);
+	space = count_in_out(shell->pipeline);
 	str = malloc(sizeof(char) * (ft_strlen(shell->pipeline) + space + 1));
 	if (!str)
 		return (NULL);
@@ -74,25 +76,27 @@ static char	*parsing(t_shell *shell)
 	return (str);
 }
 
-static void	tokenizing(t_node *node)
-{
-	t_node	*temp;
+// static void	tokenizing(t_node *node)
+// {
+// 	t_node	*temp;
 
-	temp = node;
-	while (temp->next)
-	{
-		printf("%s\n", temp->command);
-		temp = temp->next;
-	}
-	printf("%s\n", temp->command);
-	printf("Current token: %s\n", node->command);
-}
+// 	temp = node;
+// 	while (temp->next)
+// 	{
+// 		printf("%s\n", temp->command);
+// 		// if ((int)temp->command == 62)
+// 		// 	printf("got it");
+// 		temp = temp->next;
+// 	}
+// 	printf("%s\n", temp->command);
+// 	printf("Current token: %s\n", node->command);
+// }
 
 void	get_first_command_path(t_shell *shell)
 {
 	shell->line_to_split = parsing(shell);
 	shell->splitted_pipe = ft_split(shell->line_to_split, ' ');
 	create_instruction_list(shell);
-	tokenizing(shell->token);
+	// tokenizing(shell->token);
 	shell->first_cmd_path = get_path(shell->token->command);
 }

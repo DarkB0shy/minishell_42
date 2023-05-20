@@ -19,7 +19,7 @@ void	ft_lstadd_back(t_node **lst, t_node *new)
 	if (!lst || !new)
 		return ;
 	node = *lst;
-	if (*lst == NULL)
+	if (lst == NULL)
 	{
 		*lst = new;
 		return ;

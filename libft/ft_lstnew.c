@@ -22,5 +22,10 @@ t_node	*ft_lstnew(void *content)
 	new->command = ft_strdup(content);
 	new->prev = NULL;
 	new->next = NULL;
+	new->pipe = 0;
+	new->input = 0;
+	new->output = 0;
+	new->append = 0;
+	new->heredoc = 0;
 	return (new);
 }

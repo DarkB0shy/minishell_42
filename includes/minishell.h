@@ -15,6 +15,11 @@
 typedef struct s_node
 {
 	char			*command;
+	int				pipe;
+	int				input;
+	int				output;
+	int				append;
+	int				heredoc;
 	struct s_node	*next;
 	struct s_node	*prev;
 }	t_node;
