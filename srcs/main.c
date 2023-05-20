@@ -7,13 +7,13 @@ int	main(int argc, char **argv, char **envp)
 
     (void)argc;
     (void)argv;
-    (void)envp;
+    // (void)envp;
     // i = 0;
     // while (envp[i])
     // {
     //     printf("%d\t%s\n", i, envp[i]);
     //     i++;
     // }
-    init_prompt(&shell);
+    init_prompt(&shell, envp);
     return (0);
 }

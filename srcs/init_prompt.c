@@ -1,50 +1,35 @@
 #include "minishell.h"
 
-void	handle_sigint(int sig)
+static void main_loop(t_shell *shell, char **envp)
 {
-	(void)sig;
-    ioctl(STDIN_FILENO, TIOCSTI, "\n");
-	rl_replace_line("", 0);
-	rl_on_new_line();
-}
-
-static void	handle_sigquit(int sig)
-{
-	(void)sig;
-	rl_on_new_line();
-	rl_redisplay();
-}
-
-static void main_loop(t_shell *shell)
-{
-    // char *echo_cmd[] = {"echo", "ciao", NULL};
-
+    (void)envp;
+    signal(SIGINT, ft_sig_handel);
+    signal(SIGQUIT, ft_sig_handel);
     while (1)
     {
-        signal(SIGINT, handle_sigint);
-        signal(SIGQUIT, handle_sigquit);
         shell->pipeline = readline(shell->prompt);
         if (!shell->pipeline)
             break ;
-        // if (ft_strncmp(shell->pipeline, "echo", 4))
-        // {
-        //     int pid;
-        //     if ((pid = fork()) < 0)
-        //         return ;
-        //     else if (!pid)
-        //         execvp("/bin/echo", echo_cmd);
-        //     close(pid);
-        //     waitpid(pid, NULL, 0);
-        // }
         if (ft_strncmp(shell->pipeline, "", 1))
         {
             add_history(shell->pipeline);
             if (!check_syntax(shell->pipeline))
             {
-                // split_readline(shell);
+                get_first_command_path(shell);
+                if (!shell->first_cmd_path)
+                    write_std_error("command not found\n");
+                else
+                {
+                    free(shell->execve_arg);
+                    free(shell->first_cmd_path);
+                    free_nodes(shell->token);
+                    // executing(shell, envp);
+                }
             }
-        } 
-        free(shell->pipeline);
+            free(shell->pipeline);
+            free(shell->line_to_split);
+            free(shell->splitted_pipe);
+        }
     }
 }
 
@@ -66,9 +51,10 @@ static void  get_pwd(t_shell *shell)
     free(temp);
 }
 
-void init_prompt(t_shell *shell)
+void init_prompt(t_shell *shell, char **envp)
 {
+    shell->first_cmd_path = NULL;
     get_pwd(shell);
-    main_loop(shell);
+    main_loop(shell, envp);
     free(shell->prompt);
 }
