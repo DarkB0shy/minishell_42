@@ -96,7 +96,12 @@ void	get_first_command_path(t_shell *shell)
 {
 	shell->line_to_split = parsing(shell);
 	shell->splitted_pipe = ft_split(shell->line_to_split, ' ');
-	create_instruction_list(shell);
+	free(shell->line_to_split);
+	shell->first_cmd_path = get_path(shell->splitted_pipe[0]);
+	if (shell->first_cmd_path)
+		create_instruction_list(shell);
+	else	
+		free(shell->splitted_pipe);
 	// tokenizing(shell->token);
-	shell->first_cmd_path = get_path(shell->token->command);
+	// shell->first_cmd_path = get_path(shell->token->command);
 }

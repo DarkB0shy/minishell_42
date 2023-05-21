@@ -2,7 +2,6 @@
 
 static void main_loop(t_shell *shell, char **envp)
 {
-    (void)envp;
     while (1)
     {
         signal(SIGINT, ft_sig_handel);
@@ -20,15 +19,15 @@ static void main_loop(t_shell *shell, char **envp)
                     write_std_error("command not found\n");
                 else
                 {
-                    printf("executed\n");
                     executing(shell, envp);
                     free(shell->execve_arg);
+                    free(shell->splitted_pipe);
                     free(shell->first_cmd_path);
                     free_nodes(shell->token);
                 }
             }
-            free(shell->line_to_split);
-            free(shell->splitted_pipe);
+            else
+                write_std_error("wrong syntax\n");
             // free(shell->pipeline);
         }
     }
@@ -49,12 +48,17 @@ static void  get_pwd(t_shell *shell)
     temp = ft_strjoin(temp, "@minishell-");
     temp = ft_strjoin(temp, home);
     shell->prompt = ft_strjoin(temp, shell->prompt);
+    // free(home);
     free(temp);
 }
 
 void init_prompt(t_shell *shell, char **envp)
 {
     shell->first_cmd_path = NULL;
+    shell->pipeline = NULL;
+    shell->line_to_split = NULL;
+    shell->splitted_pipe = NULL;
+    shell->execve_arg = NULL;
     get_pwd(shell);
     main_loop(shell, envp);
     free(shell->prompt);

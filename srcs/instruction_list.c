@@ -54,7 +54,6 @@ static char    **create_execve_arg(t_shell *shell)
         while (i < ret_len)
         {
             ret[i] = temp->command;
-            printf("%s\n", ret[i]);
             i++;
             temp = temp->next;
         }
@@ -74,7 +73,6 @@ void    create_instruction_list(t_shell *shell)
         ft_lstadd_back(&shell->token, ft_lstnew((char *)shell->splitted_pipe[i]));
         i++;
     }
-    printf("Current: %s\n", shell->token->command);
     // if (shell->token->prev)
     // {
     //     while (shell->token->prev)
