@@ -1,65 +1,105 @@
-#include "minishell.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_prompt.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: scastagn <scastagn@student.42roma.it>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/05/26 20:49:47 by scastagn          #+#    #+#             */
+/*   Updated: 2023/06/08 21:13:56 by scastagn         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-static void main_loop(t_shell *shell, char **envp)
+#include "../includes/minishell.h"
+
+static void	handle_siginit(int sig)
 {
-    while (1)
-    {
-        signal(SIGINT, ft_sig_handel);
-        signal(SIGQUIT, ft_sig_handel);
-        shell->pipeline = readline(shell->prompt);
-        if (!shell->pipeline)
-            break ;
-        if (ft_strncmp(shell->pipeline, "", 1))
-        {
-            add_history(shell->pipeline);
-            if (!check_syntax(shell->pipeline))
-            {
-                get_first_command_path(shell);
-                if (!shell->first_cmd_path)
-                    write_std_error("command not found\n");
-                else
-                {
-                    executing(shell, envp);
-                    free(shell->execve_arg);
-                    free(shell->splitted_pipe);
-                    free(shell->first_cmd_path);
-                    free_nodes(shell->token);
-                }
-            }
-            else
-                write_std_error("wrong syntax\n");
-            // free(shell->pipeline);
-        }
-    }
+	if (sig == SIGINT)
+	{
+		ioctl(STDIN_FILENO, TIOCSTI, "\n");
+		rl_replace_line("", 0);
+		rl_on_new_line();
+	}
 }
 
-static void  get_pwd(t_shell *shell)
+static void	handle_sigquit(int sig)
 {
-    char    *home;
-    char    *temp;
-
-    shell->prompt = "\n$";
-    home = getenv("PWD");
-    if (!home)
-        print_error(1);
-    temp = getenv("USER");
-    if (!temp)
-        temp = "guest";
-    temp = ft_strjoin(temp, "@minishell-");
-    temp = ft_strjoin(temp, home);
-    shell->prompt = ft_strjoin(temp, shell->prompt);
-    // free(home);
-    free(temp);
+	if (sig == SIGQUIT)
+		return ;
+	rl_on_new_line();
+	rl_redisplay();
 }
 
-void init_prompt(t_shell *shell, char **envp)
+void	ft_setenv(t_shell *shell, char **envp)
 {
-    shell->first_cmd_path = NULL;
-    shell->pipeline = NULL;
-    shell->line_to_split = NULL;
-    shell->splitted_pipe = NULL;
-    shell->execve_arg = NULL;
-    get_pwd(shell);
-    main_loop(shell, envp);
-    free(shell->prompt);
+	int	i;
+
+	i = 0;
+	while (envp[i])
+		i++;
+	shell->copy_env = malloc (sizeof(char *) * (i + 1));
+	i = 0;
+	while (envp[i])
+	{
+		shell->copy_env[i] = ft_strdup(envp[i]);
+		i++;
+	}
+	shell->copy_env[i] = NULL;
+}
+
+static void	main_loop(t_shell *shell)
+{
+	t_list	*start;
+
+	while (1)
+	{
+		signal(SIGINT, handle_siginit);
+		signal(SIGQUIT, handle_sigquit);
+		shell->pipeline = readline(shell->prompt);
+		if (!shell->pipeline)
+			break ;
+		if (check_syntax(shell->pipeline))
+		{
+			free(shell->pipeline);
+			continue ;
+		}
+		shell->line_to_split = parsing(shell);
+		if (ft_strncmp(shell->pipeline, "", 1))
+		{
+			add_history(shell->pipeline);
+			if (shell->line_to_split == NULL)
+				break ;
+			shell->pipe_words = ft_split_pipes(shell->line_to_split, 124);
+			shell->cmds = ft_add_pipes(shell->pipe_words);
+			create_cmd_list(shell);
+			start = shell->cmds_list;
+			if (!((t_command *)shell->cmds_list->content)->split_cmd[0])
+			{
+				ft_free_list(start);
+				ft_free_execve(shell);
+				ft_free_shell(shell);
+				continue ;
+			}
+			executorprova(shell);
+			ft_free_list(start);
+			ft_free_execve(shell);
+		}
+		ft_free_shell(shell);
+	}
+}
+
+void	init_prompt(t_shell *shell, char **envp)
+{
+	char	*user;
+
+	user = getenv("USER");
+	if (!user)
+		user = "guest";
+	init_values(&shell);
+	shell->prompt = ft_strjoin(user, "@minishell$ ");
+	ft_setenv(shell, envp);
+	main_loop(shell);
+	free(shell->prompt);
+	free_matrix(shell->copy_env);
+	free(shell);
 }

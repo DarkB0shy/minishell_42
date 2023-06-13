@@ -1,23 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   errors.c                                           :+:      :+:    :+:   */
+/*   cmds2.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: scastagn <scastagn@student.42roma.it>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/05/26 20:49:41 by scastagn          #+#    #+#             */
-/*   Updated: 2023/05/26 20:49:42 by scastagn         ###   ########.fr       */
+/*   Created: 2023/06/06 21:40:11 by scastagn          #+#    #+#             */
+/*   Updated: 2023/06/11 12:02:19 by scastagn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-int std_error(char *error)
+char     *ft_find_heredoc(char **cmd)
 {
     int i;
 
     i = 0;
-    while (error[i])
+    while (cmd[i])
+    {
+        if (!strcmp(cmd[i], "<<"))
+        {
+            if (cmd[i + 1])
+                return (cmd[i + 1]);
+            i++;
+        }
         i++;
-    return(write(2, error, i));
+    }
+    return (NULL);
 }
