@@ -45,9 +45,12 @@ typedef struct s_shell
 	char				*prompt;
 	char				*pipeline;
 	char				*line_to_split;
+	char				*line_to_split_expand;
 	char				**pipe_words;
 	char				**cmds;
 	char				**copy_env;
+	char				*expand_var;
+	char				*expand_value;
 	struct s_list		*cmds_list;
 }	t_shell;
 
@@ -98,6 +101,9 @@ int				ft_check_var(char **copy_env, t_command *cmd, int mode);
 int				ft_changevalue(char **copy_env, t_command *cmd, int	i);
 void			ft_unset(t_shell *shell, t_command *cmd);
 void			ft_exit(t_shell *shell, t_list *start);
+
+//expander
+void    expander(t_shell *shell);
 
 //free
 int				free_matrix(char **matrix);

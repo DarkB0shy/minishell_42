@@ -64,12 +64,16 @@ static void	main_loop(t_shell *shell)
 			continue ;
 		}
 		shell->line_to_split = parsing(shell);
+		expander(shell);
 		if (ft_strncmp(shell->pipeline, "", 1))
 		{
 			add_history(shell->pipeline);
 			if (shell->line_to_split == NULL)
 				break ;
-			shell->pipe_words = ft_split_pipes(shell->line_to_split, 124);
+			if (shell->line_to_split_expand != NULL)
+                shell->pipe_words = ft_split_pipes(shell->line_to_split_expand, 124);
+            else
+                shell->pipe_words = ft_split_pipes(shell->line_to_split, 124);
 			shell->cmds = ft_add_pipes(shell->pipe_words);
 			create_cmd_list(shell);
 			start = shell->cmds_list;
