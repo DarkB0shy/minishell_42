@@ -12,7 +12,7 @@
 
 NAME        	= minishell
 
-CC          	= cc
+CC          	= clang
 
 CFLAGS      	= -Wall -Wextra -Werror -g #-fcommon -fsanitize=address
 
