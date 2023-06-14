@@ -26,8 +26,6 @@ LIBFT_DIR		= includes/libft
 OBJ_DIR     	= objs
 
 PRINTF			= printf
-SRCS        	= $(wildcard $(SRC_DIR)/*.c)
-OBJS        	= $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 SYNTAX_SRCS 	= $(wildcard $(SYNTAX_DIR)/*.c)
 OBJS_SYNTAX 	= $(SYNTAX_SRCS:$(SYNTAX_DIR)/%.c=$(OBJ_DIR)/%.o)
@@ -44,30 +42,36 @@ OBJS_LIBFT 	= $(LIBFT_SRCS:$(LIBFT_DIR)/%.c=$(OBJ_DIR)/%.o)
 READLINE        = -L/usr/include/readline -I/usr/include/readline -lreadline
 READLINE_MAC    = -L/usr/include -lreadline -L$(HOME)/.brew/opt/readline/lib -I$(HOME)/.brew/opt/readline/include
 
+SRCS        	= $(wildcard $(SRC_DIR)/*.c)
+OBJS        	= $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+
+CLEAR			= clear
+
 RM          	= rm -rf
 
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
-	@$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
+	$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
 
 $(OBJ_DIR)/%.o : $(SYNTAX_DIR)/%.c
 	@mkdir -p $(@D)
-	@$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
+	$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
 
 $(OBJ_DIR)/%.o : $(PARSING_DIR)/%.c
 	@mkdir -p $(@D)
-	@$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
+	$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
 
 $(OBJ_DIR)/%.o : $(EXECUTOR_DIR)/%.c
 	@mkdir -p $(@D)
-	@$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
+	$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
 
 $(OBJ_DIR)/%.o : $(LIBFT_DIR)/%.c
 	@mkdir -p $(@D)
-	@$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
+	$(CC) $(CFLAGS) -I $(INCLUDE) -c $< -o $@
 
 $(NAME): $(OBJS) $(OBJS_SYNTAX) $(OBJS_PARSING) $(OBJS_EXECUTOR) $(OBJS_LIBFT)
 	@$(CC) $(CFLAGS) -I $(INCLUDE) $(OBJS) $(OBJS_SYNTAX) $(OBJS_PARSING) $(OBJS_EXECUTOR) $(OBJS_LIBFT) -o $(NAME) $(READLINE_MAC)
+	@$(CLEAR)
 	@echo "[+] $(NAME) compiled"
 
 all:	$(NAME)
