@@ -19,10 +19,12 @@ static void    ft_line_to_split_expand(t_shell *shell)
             while (shell->line_to_split[i + 1] && shell->line_to_split[i] != 39)
                 i++;
         }
+        if (shell->line_to_split[i] == 34 && shell->line_to_split[i + 1] == '$')
+            i++;
         if (shell->line_to_split[i] == '$')
         {
             i++;
-            while(shell->line_to_split[i] && shell->line_to_split[i] != ' ')
+            while(shell->line_to_split[i] && (shell->line_to_split[i] != ' '))
                 i++;
             while(shell->exp_values[g][k])
             {
@@ -33,6 +35,8 @@ static void    ft_line_to_split_expand(t_shell *shell)
             g++;
             k = 0;
         }
+        if (shell->line_to_split[i] == '"' && shell->line_to_split[i + 1] == '$')
+            i++;
         if (shell->line_to_split[i])
         {
             shell->line_to_split_expand[j] = shell->line_to_split[i];
@@ -69,7 +73,6 @@ static void  count_exp_vars(t_shell *shell)
             i++;
     }
     shell->n_exp_values = cont; 
-    // printf("CONT: %d\n", cont);
     if (shell->n_exp_values > 0)
     {
         shell->exp_vars = malloc(sizeof(char *) * cont + 1);
@@ -89,14 +92,8 @@ static int    filter_expand(t_shell *shell)
     f = 0; // valore di ritorno
     g = 0; // contatore di exp_vars
     while (shell->line_to_split[i])
-    {
+    {       
         j = 0;
-        // if (shell->line_to_split[i] == 39)
-        // {
-        //     i++;
-        //     while (shell->line_to_split[i] != 39)
-        //         i++;
-        // }
         if (shell->line_to_split[i] == 39)
         {
             i++;
@@ -106,23 +103,48 @@ static int    filter_expand(t_shell *shell)
         if (shell->line_to_split[i] == '$')
         {
             f = 1;
-            i++;
-            while(shell->line_to_split[i] != 34 && shell->line_to_split[i] && shell->line_to_split[i] != 32)
+            if (shell->line_to_split[i - 1] == 34 && shell->line_to_split[i])
             {
                 i++;
-                j++;
+                while(shell->line_to_split[i] != 34 && shell->line_to_split[i])
+                {
+                    if (shell->line_to_split[i] == 32)
+                        break ;
+                    i++;
+                    j++;
+                }
+                shell->exp_vars[g] = malloc(sizeof(char) * (j + 1));
+                i = i - j;
+                j = 0;
+                while(shell->line_to_split[i + 1] && shell->line_to_split[i] != 34)
+                {
+                    shell->exp_vars[g][j] = shell->line_to_split[i];
+                    i++;
+                    j++;
+                }
+                shell->exp_vars[g][j] = '\0';
+                g++;
             }
-            shell->exp_vars[g] = malloc(sizeof(char) * (j + 1));
-            i = i - j;
-            j = 0;
-            while(shell->line_to_split[i] && shell->line_to_split[i] != 32)
+            else
             {
-                shell->exp_vars[g][j] = shell->line_to_split[i];
                 i++;
-                j++;
+                while(shell->line_to_split[i] != 34 && shell->line_to_split[i] && shell->line_to_split[i] != 32)
+                {
+                    i++;
+                    j++;
+                }
+                shell->exp_vars[g] = malloc(sizeof(char) * (j + 1));
+                i = i - j;
+                j = 0;
+                while(shell->line_to_split[i] && shell->line_to_split[i] != 32)
+                {
+                    shell->exp_vars[g][j] = shell->line_to_split[i];
+                    i++;
+                    j++;
+                }
+                shell->exp_vars[g][j] = '\0';
+                g++;
             }
-            shell->exp_vars[g][j] = '\0';
-            g++;
         }
         else
             i++;
@@ -134,23 +156,15 @@ static int    filter_expand(t_shell *shell)
 
 static int    get_var_values(t_shell *shell)
 {
-    int     i; // contatore strcmp opy_env
+    int     i; // contatore strcmp copy_env
     int     ret; // ritorno
     char    *temp; // temporanea trim_def
-    int     g; // contatore strcmp exp vars 
+    int     g; // contatore strcmp exp vars
 
     i = 0;
     ret = 0;
     g = 0;
     temp = NULL;
-    // if (!shell->exp_vars)
-        // return (ret);
-    // if (shell->exp_vars[g][0] == '?')
-    // {
-    //     shell->exp_values[g] = ft_itoa(exit_status);
-    //     g++;
-    //     return (1);
-    // }
     while (g < shell->n_exp_values)
     {
         if (shell->line_to_split[i] == 39)
@@ -174,16 +188,14 @@ static int    get_var_values(t_shell *shell)
                 if (!strncmp(shell->copy_env[i], shell->exp_vars[g], strlen(shell->exp_vars[g])))
                 {
                     ret = 1;
-                    // temp = trim_def(shell->copy_env[i]);
                     shell->exp_values[g] = strdup(temp);
                     free(temp);
                     break ;
-                    // g++;
                 }
                 free(temp);
                 i++;
             }
-            if (i == 51 + shell->n_local_vars)
+            if (!ret)
             {
                 ret = 1;
                 shell->exp_values[g] = strdup("");
@@ -192,7 +204,6 @@ static int    get_var_values(t_shell *shell)
         i = 0;
         g++;
     }
-    // printf("#env[i]: %d\n", i);
     shell->exp_values[g] = 0;
     return (ret);
 }
@@ -222,8 +233,9 @@ static int  get_exp_line_length(t_shell *shell)
 int    expander(t_shell *shell)
 {
     int exp_line_length; // lunghezza della linea espansia
-    size_t i;
+    size_t i;   // check valore di ritorno
 
+    i = 0;
     exp_line_length = 0;
     shell->line_to_split_expand = NULL;
     count_exp_vars(shell);
@@ -233,7 +245,6 @@ int    expander(t_shell *shell)
         {
             exp_line_length = get_exp_line_length(shell);
             shell->line_to_split_expand = malloc(sizeof(char) * (exp_line_length + 1));
-            // free(shell->expand_var);
             free_matrix(shell->exp_vars);
             ft_line_to_split_expand(shell);
             free_matrix(shell->exp_values);
