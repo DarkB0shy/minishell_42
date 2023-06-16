@@ -6,7 +6,7 @@
 /*   By: scastagn <scastagn@student.42roma.it>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 16:08:44 by scastagn          #+#    #+#             */
-/*   Updated: 2023/06/11 16:15:18 by scastagn         ###   ########.fr       */
+/*   Updated: 2023/06/14 20:50:39 by scastagn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ int get_matrix_lenght(char **matrix)
     int i;
 
     i = 0;
-    while(matrix[i])
+    while (matrix[i])
         i++;
     return (i);
 }

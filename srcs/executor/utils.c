@@ -6,7 +6,7 @@
 /*   By: scastagn <scastagn@student.42roma.it>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 11:59:32 by scastagn          #+#    #+#             */
-/*   Updated: 2023/06/11 15:39:17 by scastagn         ###   ########.fr       */
+/*   Updated: 2023/06/14 22:11:40 by scastagn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,11 +96,16 @@ void    ft_back_home(t_shell *shell)
         if (!ft_strncmp("HOME=", shell->copy_env[i], 5))
         {
             dir = trim_def(shell->copy_env[i]);
-            chdir(dir);
-            update_cwd(shell);
-            free(dir);
+            if (chdir(dir) != 0)
+            {
+                printf("minishell: cd: %s: No such file or directory\n", dir);
+                exit_status = 1;
             }
-            i++;
+            else
+                update_cwd(shell);
+            free(dir);
+        }
+        i++;
     }
 }
 

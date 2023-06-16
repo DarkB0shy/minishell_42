@@ -6,7 +6,7 @@
 /*   By: scastagn <scastagn@student.42roma.it>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/08 22:10:59 by scastagn          #+#    #+#             */
-/*   Updated: 2023/06/11 16:20:59 by scastagn         ###   ########.fr       */
+/*   Updated: 2023/06/14 22:12:24 by scastagn         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ void    update_cwd(t_shell *shell)
         }
         i++;
     }
+    exit_status = 0;
 }
 
 void    update_cwd_reverse(t_shell *shell)
@@ -50,9 +51,16 @@ void    update_cwd_reverse(t_shell *shell)
         if (!ft_strncmp("OLDPWD=", shell->copy_env[i], 7))
         {
             trimmed = trim_def(shell->copy_env[i]);
-            chdir(trimmed);
-            update_cwd(shell);
-            printf("%s\n", trimmed);
+            if (chdir(trimmed) != 0)
+            {
+                printf("minishell: cd: %s: No such file or directory\n", trimmed);
+                exit_status = 1;
+            }
+            else
+            {
+                update_cwd(shell);
+                printf("%s\n", trimmed);
+            }
             free(trimmed);
         }
         i++;
@@ -81,10 +89,10 @@ void    ft_export(t_shell *shell, t_command *cmd)
         i++;
     }
     updated_env[i] = ft_strdup(cmd->split_cmd[1]);
-    shell->n_local_vars++;
     updated_env[++i] = NULL;
     free_matrix(shell->copy_env);
-    shell->copy_env = updated_env; 
+    shell->copy_env = updated_env;
+    exit_status = 0;
 }
 
 void    ft_unset(t_shell *shell, t_command *cmd)
@@ -103,16 +111,14 @@ void    ft_unset(t_shell *shell, t_command *cmd)
             updated_env[i] = ft_strdup(shell->copy_env[i]);
             i++;
         }
-        i++;
-        while (shell->copy_env[i])
+        while (shell->copy_env[++i])
         {
             updated_env[toskip] = ft_strdup(shell->copy_env[i]);
-            i++;
             toskip++;
         }
-        updated_env[toskip] = 0;
+        updated_env[toskip] = NULL;
         free_matrix(shell->copy_env);
-        shell->n_local_vars--;
         shell->copy_env = updated_env;
     }
+    exit_status = 0;
 }
