@@ -61,7 +61,7 @@ static int  check_dollar(char *line)
     return (0);
 }
 
-void    expander(char *line, t_shell *shell)
+int    expander(char *line, t_shell *shell)
 {
     char    *expanded;
     char    *varname;
@@ -75,9 +75,10 @@ void    expander(char *line, t_shell *shell)
     if (!check_dollar(line))
     {
         shell->line_to_split_exp = NULL;
-        return ;
+        return (1);
     }
     expanded = malloc(sizeof(char) * 512);
+    expanded[0] = '\0';
     i = 0;
     k = 0;
     start = 0;
@@ -160,18 +161,24 @@ void    expander(char *line, t_shell *shell)
         expanded[k] = '\0';
     }
     // expanded[k] = '\0';
-    k = 0;
-    size_t check = 0;
-    if (expanded[k])
+    // k = 0;
+    // if (expanded[k])
+    // {
+    //     while (expanded[check] == ' ')
+    //         check++;
+    //     if (check == ft_strlen(expanded))
+    //     {
+    //         free(expanded);
+    //         return (0);
+    //     }
+    // }
+    if (expanded[0] == '\0')
     {
-        while (expanded[check] == ' ')
-            check++;
-        if (check == ft_strlen(expanded))
-        {
-            free(expanded);
-            expanded = ft_strdup("");
-        }
+        free(expanded);
+        return (0);
+        // shell->line_to_split_exp = NULL;
     }
     // return (expanded);
     shell->line_to_split_exp = expanded;
+    return (1);
 }
