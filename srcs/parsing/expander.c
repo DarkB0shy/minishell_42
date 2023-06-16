@@ -32,18 +32,36 @@ static char	*ft_strdupfrom(char const *s, int inizio, int fine)
 char    *ft_findvalue(char *name, char **env)
 {
     int     i;
+    char    *temp;
 
     i = 0;
+    temp = NULL;
     while (env[i])
     {
         if (!ft_strncmp(name, env[i], ft_strlen(name)))
+        {    
             return (trim_def(env[i]));
+        }
         i++;
     }
     return (strdup(""));
 }
 
-char    *expander(char *line, t_shell *shell)
+static int  check_dollar(char *line)
+{
+    int i;
+
+    i = 0;
+    while (line[i])
+    {
+        if (line[i] == '$')
+            return (1);
+        i++;
+    }
+    return (0);
+}
+
+void    expander(char *line, t_shell *shell)
 {
     char    *expanded;
     char    *varname;
@@ -54,6 +72,11 @@ char    *expander(char *line, t_shell *shell)
 
     varname = NULL;
     varvalue = NULL;
+    if (!check_dollar(line))
+    {
+        shell->line_to_split_exp = NULL;
+        return ;
+    }
     expanded = malloc(sizeof(char) * 512);
     i = 0;
     k = 0;
@@ -97,9 +120,11 @@ char    *expander(char *line, t_shell *shell)
                 varvalue = ft_findvalue(varname, shell->copy_env);
                 free (varname);
                 expanded = strcat(expanded, varvalue);
+                free(varvalue);
+                if (line[i - 1] == '\0')
+                    break ;
                 if (line[i] && line[i] == 34)
                     i++;
-                free(varvalue);
                 k = ft_strlen(expanded);
             }
         }
@@ -114,9 +139,9 @@ char    *expander(char *line, t_shell *shell)
                 k++;
             }
         }
-        if (line[i] == '~')
+        if (line[i] == '~' && line[i - 1] == ' ')
         {
-            if (line[i + 1] == 34 || !line[i + 1] || line[i + 1] != '~')
+            if (line[i + 1] == ' ' || line[i + 1] == '\0')
             {
                 varvalue = ft_findvalue("HOME", shell->copy_env);
                 expanded = strcat(expanded, varvalue);
@@ -125,8 +150,15 @@ char    *expander(char *line, t_shell *shell)
                 i++;
             }
         }
+        else if (line[i] != '$')
+        {
+            expanded[k] = line[i];
+            i++;
+            k++;
+        }
         expanded[k] = '\0';
     }
+    // expanded[k] = '\0';
     k = 0;
     size_t check = 0;
     if (expanded[k])
@@ -139,5 +171,6 @@ char    *expander(char *line, t_shell *shell)
             expanded = ft_strdup("");
         }
     }
-    return (expanded);
+    // return (expanded);
+    shell->line_to_split_exp = expanded;
 }

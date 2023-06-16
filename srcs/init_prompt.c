@@ -16,10 +16,10 @@ static void handle_siginit(int sig)
 {
     if (sig == SIGINT)
     {
-		printf("\n");
+		// printf("\n");
 		rl_replace_line("", 0);
-		rl_on_new_line();
-		rl_redisplay();
+		// rl_on_new_line();
+		// rl_redisplay();
         return ;
     }
 }
@@ -67,8 +67,8 @@ static void main_loop(t_shell *shell)
             continue ;
         }
         shell->line_to_split = parsing(shell);
-        shell->line_to_split_exp = expander(shell->line_to_split, shell);
-        if (ft_strncmp(shell->pipeline, "", 1) && ft_strncmp(shell->line_to_split_exp, "", 1))
+        expander(shell->line_to_split, shell);
+        if (ft_strncmp(shell->pipeline, "", 1))
         {
             add_history(shell->pipeline);
             if (shell->line_to_split == NULL)

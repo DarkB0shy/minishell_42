@@ -72,7 +72,7 @@ int				check_pipes(char *str);
 
 // parser
 char			*parsing(t_shell *shell);
-char			*expander(char *line, t_shell *shell);
+void			expander(char *line, t_shell *shell);
 char			**ft_split_pipes(char const *s, char c);
 char			**ft_add_pipes(char **pipe_words);
 void			create_cmd_list(t_shell *shell);

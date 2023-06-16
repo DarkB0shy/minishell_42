@@ -29,7 +29,7 @@ void    ft_echo(char **args)
     int newline;
 
     i = 1;
-    if (!strcmp(args[1], "-n"))
+    if (!ft_strncmp(args[1], "-n", 2))
     {
         newline = 1;
         i++;
