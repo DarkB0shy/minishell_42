@@ -54,7 +54,7 @@ static int  check_dollar(char *line)
     i = 0;
     while (line[i])
     {
-        if (line[i] == '$')
+        if (line[i] == '$' || line[i] == '~')
             return (1);
         i++;
     }
@@ -138,10 +138,11 @@ void    expander(char *line, t_shell *shell)
                 i++;
                 k++;
             }
+            expanded[k] = '\0';
         }
         if (line[i] == '~' && line[i - 1] == ' ')
         {
-            if (line[i + 1] == ' ' || line[i + 1] == '\0')
+            if (line[i + 1] == 34 || !line[i + 1] || line[i + 1] != '~')
             {
                 varvalue = ft_findvalue("HOME", shell->copy_env);
                 expanded = strcat(expanded, varvalue);
@@ -150,7 +151,7 @@ void    expander(char *line, t_shell *shell)
                 i++;
             }
         }
-        else if (line[i] != '$')
+        else if (line[i] != '\0' && line[i] != '$')
         {
             expanded[k] = line[i];
             i++;
